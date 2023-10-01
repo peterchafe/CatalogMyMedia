@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.7.34018.315
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CatalogMyMedia", "CatalogMyMedia\CatalogMyMedia.csproj", "{0C0306D5-A22A-4AF6-B580-A4CA071304F8}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SnapshotCropper", "SnapshotCropper\SnapshotCropper.csproj", "{22AC35BB-CCED-444D-8E9B-B2AACCCC8310}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{0C0306D5-A22A-4AF6-B580-A4CA071304F8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0C0306D5-A22A-4AF6-B580-A4CA071304F8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0C0306D5-A22A-4AF6-B580-A4CA071304F8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0C0306D5-A22A-4AF6-B580-A4CA071304F8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{22AC35BB-CCED-444D-8E9B-B2AACCCC8310}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{22AC35BB-CCED-444D-8E9B-B2AACCCC8310}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{22AC35BB-CCED-444D-8E9B-B2AACCCC8310}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{22AC35BB-CCED-444D-8E9B-B2AACCCC8310}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {34EBB300-8FD7-4A5A-9391-75547D0EFD43}
+	EndGlobalSection
+EndGlobal

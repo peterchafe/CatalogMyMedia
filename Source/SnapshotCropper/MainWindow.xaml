@@ -1,0 +1,46 @@
+﻿<Window x:Class="SnapshotCropper.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:SnapshotCropper"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="547" Width="1295"
+        ResizeMode="NoResize">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="auto"/>
+        </Grid.RowDefinitions>
+        <Canvas x:Name="myCanvas"
+                Grid.Column="0"
+                Margin="0, 0, 0, 0">
+            <Image x:Name="myImageControl"
+                   MouseDown="CropRectangle_MouseDown"
+                   MouseMove="CropRectangle_MouseMove"
+                   MouseUp="CropRectangle_MouseUp"
+                   Width="640"
+                   Height="480"
+                   Cursor="Cross"/>
+            </Canvas>
+        <Image Grid.Column="1"
+               x:Name="croppedImageControl"
+               Width="640"
+               Height="480  "
+               Cursor="Arrow"/>
+        <StackPanel Grid.Row="1" Orientation="Horizontal">
+            <Label Content="Cursor:"/>
+            <TextBlock x:Name="txtCursor"
+                 Text="0,0"
+                 Margin="5"/>
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" Grid.Column="1" Grid.Row="1" >
+            <Button Margin="3" Content="Repeat Crop Area" Width="150" Name="cmdRepeatCrop" Click="CmdRepeat_Click"/>
+            <Button Margin="3" Content="Save Cropped Image" Width="150" Name="cmdSave" Click="CmdSave_Click"/>
+        </StackPanel>
+    </Grid>
+</Window>
