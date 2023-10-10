@@ -1,9 +1,14 @@
-﻿using DirectShowLib;
+﻿using CMMLib;
+using DirectShowLib;
 using ImageMagick;
 using LibVLCSharp.Shared;
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Forms;
 
 namespace CatalogMyMedia
 {
@@ -12,58 +17,89 @@ namespace CatalogMyMedia
     /// </summary>
     public partial class MainWindow : Window
     {
-        private const string TrackFile = "D:\\Catalog\\track.log";
         private LibVLC m_LibVLC;
         private MediaPlayer m_MediaPlayer;
-        
+        private Settings m_Settings;
 
         public uint Index { get; set; }
         public bool SnapshotSaved { get; set; }
+
+        List<DsDevice> m_Devices;
 
         public string ScreenshotFile => $"D:\\Catalog\\CMM_{Index.ToString().PadLeft(4, '0')}.png";
 
         public MainWindow()
         {
-            if (File.Exists(TrackFile) && uint.TryParse(File.ReadAllText(TrackFile), out uint index))
+            m_Settings = Settings.Load();
+
+            if (string.IsNullOrWhiteSpace(m_Settings.WorkingFolder) || Directory.Exists(m_Settings.WorkingFolder) == false)
             {
-                Index = index;
+                FolderBrowserDialog fbd = new FolderBrowserDialog();
+
+                fbd.Description = "Select folder where snapshots will be located.";
+
+                fbd.ShowDialog();
+
+                if (string.IsNullOrEmpty(fbd.SelectedPath) || Directory.Exists(fbd.SelectedPath) == false)
+                {
+                    System.Windows.MessageBox.Show("Invalid directory selected! Application will now close!", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    Close();
+                }
+
+                m_Settings = m_Settings.WithWorkingFolder(fbd.SelectedPath);
+                m_Settings.Save();
             }
 
             SnapshotSaved = false;
 
             InitializeComponent();
 
-            DsDevice[] devices = DsDevice.GetDevicesOfCat(FilterCategory.VideoInputDevice);
+            m_Devices = DsDevice.GetDevicesOfCat(FilterCategory.VideoInputDevice).ToList();
 
-            string deviceName = string.Empty;
-
-            foreach (var device in devices)
-            {
-                deviceName = device.Name;
-
-                if (deviceName.Contains("Logi", StringComparison.InvariantCultureIgnoreCase))
-                {
-                    break;
-                }
-            }
+            ListCameras.ItemsSource = m_Devices.Select(x => x.Name).ToList();
 
             Core.Initialize();
 
-            m_LibVLC = new LibVLC();
+            // Command Line Options: https://wiki.videolan.org/VLC_command-line_help/
+            m_LibVLC = new LibVLC(new string[] { "--dshow-fps=30", "--dshow-aspect-ratio=16:9" });
+
             m_MediaPlayer = new MediaPlayer(m_LibVLC);
 
             videoView.MediaPlayer = m_MediaPlayer;
 
-            string mediaOptions = $"dshow-vdev={deviceName}";
+            ListCameras.SelectionChanged += CameraChanged;
 
-            m_MediaPlayer.Play(new Media(m_LibVLC, new Uri("dshow://"), mediaOptions));
+            for (int i = 0; i < ListCameras.Items.Count; i++)
+            {
+                if (ListCameras.Items[i].Equals(m_Settings.CameraName))
+                {
+                    ListCameras.SelectedIndex = i;
+                }
+            }
+        }
+
+        private void CameraChanged(object sender, SelectionChangedEventArgs e)
+        {
+            // string mediaOptions = $"dshow-vdev={m_Devices.Where(x => x.Name == ListCameras.Text)}";
+            string? name = (string?)(ListCameras.SelectedItem is not null ? ListCameras.SelectedValue : m_Devices.First().Name);
+
+            if (name is not null)
+            {
+                string mediaOptions = $"dshow-vdev={name}";
+                m_MediaPlayer.Play(new Media(m_LibVLC, new Uri("dshow://"), mediaOptions));
+
+                if (m_Settings.CameraName != name)
+                {
+                    m_Settings = m_Settings.WithCameraName(name);
+                }
+            }
         }
 
         private void Save_Click(object sender, RoutedEventArgs e)
         {
             if (SnapshotSaved && string.IsNullOrWhiteSpace(txtName.Text) == false)
             {
-                using (var writer = new StreamWriter($"D:\\Catalog\\catalog.csv", true))
+                using (var writer = new StreamWriter(Path.Combine(m_Settings.WorkingFolder, "catalog.csv"), true))
                 {
                     writer.WriteLine($"{Index},{txtName.Text},{ScreenshotFile}");
                 }
@@ -77,11 +113,11 @@ namespace CatalogMyMedia
                 SnapshotSaved = false;
                 txtName.Text = string.Empty;
                 Index++;
-                File.WriteAllText("D:\\Catalog\\track.log", Index.ToString());
+                m_Settings.AddRecord();
             }
             else
             {
-                MessageBox.Show("Snapshot not taken, please take a snapshot before saving.");
+                System.Windows.MessageBox.Show("Snapshot not taken, please take a snapshot before saving.");
             }
         }
 
@@ -89,9 +125,12 @@ namespace CatalogMyMedia
         {
             base.OnClosed(e);
 
-            // Release LibVLC resources when the application is closed
-            m_MediaPlayer.Dispose();
-            m_LibVLC.Dispose();
+            if (m_MediaPlayer is not null)
+            {
+                // Release LibVLC resources when the application is closed
+                m_MediaPlayer.Dispose();
+                m_LibVLC.Dispose();
+            };           
         }
 
         private void CreateSnapshot_Click(object sender, RoutedEventArgs e)
@@ -100,14 +139,14 @@ namespace CatalogMyMedia
             if (m_MediaPlayer.IsPlaying)
             {
                 // Capture the current frame from the video output
-                if (m_MediaPlayer.TakeSnapshot(0, ScreenshotFile, 640, 480))
+                if (m_MediaPlayer.TakeSnapshot(0, ScreenshotFile, 960, 720))
                 {
                     SnapshotSaved = true;
                 }
             }
             else
             {
-                MessageBox.Show("No video is playing.");
+                System.Windows.MessageBox.Show("No video is playing.");
             }
         }
 

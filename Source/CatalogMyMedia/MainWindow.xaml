@@ -6,9 +6,15 @@
         xmlns:local="clr-namespace:CatalogMyMedia"
         xmlns:vlc="clr-namespace:LibVLCSharp.WPF;assembly=LibVLCSharp.WPF"
         mc:Ignorable="d"
-        Title="CatalogMyMedia" Height="450" Width="800">
+        Title="CatalogMyMedia" Height="480" Width="853">
     <Grid>
         <DockPanel LastChildFill="True">
+            <DockPanel LastChildFill="True" DockPanel.Dock="Top">
+                <Label Content="Camera:" Margin="5"/>
+                <Button Content="Reconnect" Margin="5" DockPanel.Dock="Right" Padding="8,0,8,0"/>
+                <ComboBox x:Name="ListCameras" Margin="5"/>
+                
+            </DockPanel>
             <DockPanel DockPanel.Dock="Bottom" LastChildFill="True">
                 <Label Content="Title:"/>                
                 <Button x:Name="cmdSave" Click="Save_Click" Margin="5" Width="124" DockPanel.Dock="Right">Save</Button>
